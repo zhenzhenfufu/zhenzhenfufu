@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="430" height="236" viewBox="0 0 430 236"><style>text{font-family:'Hiragino Sans','Segoe UI',system-ui,-apple-system,'PingFang SC','Noto Sans CJK SC',sans-serif} .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}@media (prefers-reduced-motion: reduce){*{animation:none!important}}.r0{transform-box:fill-box;transform-origin:center;animation:rip 4.5s ease-out 0.0s infinite}.r1{transform-box:fill-box;transform-origin:center;animation:rip 4.5s ease-out -1.5s infinite}.r2{transform-box:fill-box;transform-origin:center;animation:rip 4.5s ease-out -3.0s infinite}@keyframes rip{from{transform:scale(.3);opacity:.9}to{transform:scale(6);opacity:0}}.tw{animation:tw 3s ease-in-out infinite}@keyframes tw{50%{opacity:.25}}.lan{animation:lan 2.6s ease-in-out infinite}@keyframes lan{50%{opacity:.55}}</style><defs><linearGradient id="bgg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0f6"/><stop offset=".55" stop-color="#f3edff"/><stop offset="1" stop-color="#e6f4ff"/></linearGradient></defs><rect x="0.5" y="0.5" width="429" height="235" rx="14" fill="url(#bgg)" stroke="#efd3e2"/><defs><linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a99ef0"/>
+<stop offset=".55" stop-color="#f3b8d6"/><stop offset="1" stop-color="#ffd9c7"/></linearGradient>
+<linearGradient id="lake" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9b8f0"/><stop offset="1" stop-color="#9ec5f0"/></linearGradient></defs>
+<rect x="12" y="12" width="406" height="118" rx="10" fill="url(#dusk)"/>
+<clipPath id="nb"><rect x="12" y="12" width="406" height="118" rx="10"/></clipPath>
+<g clip-path="url(#nb)">
+<circle cx="48" cy="30" r="1.1" fill="#ffffff" class="tw" style="animation-delay:-0.3s"/><circle cx="92" cy="52" r="1.1" fill="#ffffff" class="tw" style="animation-delay:-1.1s"/><circle cx="150" cy="26" r="1.1" fill="#ffffff" class="tw" style="animation-delay:-2.0s"/><circle cx="205" cy="44" r="1.1" fill="#ffffff" class="tw" style="animation-delay:-0.8s"/><circle cx="380" cy="30" r="1.1" fill="#ffffff" class="tw" style="animation-delay:-1.6s"/><circle cx="250" cy="22" r="1.1" fill="#ffffff" class="tw" style="animation-delay:-2.4s"/>
+<circle cx="300" cy="44" r="15" fill="#fffaf0" opacity=".95"/>
+<path d="M12,86 L70,86 L70,66 L60,66 L82,52 L104,66 L94,66 L94,86 L150,86" fill="#6f62b8" stroke="#5a4ea6" stroke-width="1"/>
+<rect class="lan" x="78" y="72" width="8" height="10" rx="2" fill="#ffe08a"/>
+<rect x="12" y="86" width="406" height="44" fill="url(#lake)"/>
+<ellipse class="r0" cx="300" cy="104" rx="10" ry="3" fill="none" stroke="#ffffff" stroke-width="1.3"/><ellipse class="r1" cx="300" cy="104" rx="10" ry="3" fill="none" stroke="#ffffff" stroke-width="1.3"/><ellipse class="r2" cx="300" cy="104" rx="10" ry="3" fill="none" stroke="#ffffff" stroke-width="1.3"/>
+<line x1="20" x2="410" y1="86" y2="86" stroke="#ffffff" stroke-opacity=".7"/>
+</g>
+
+<text x="24" y="160" font-size="21" font-weight="800" fill="#2b2440">Night Water Academy<tspan fill="#d93b74" font-size="16" dx="8">夜水书院</tspan></text>
+<text x="24" y="183" font-size="13" fill="#574f6e">first-person puzzle game · Unreal Engine 5</text>
+<text x="24" y="211" font-size="12" fill="#6a5ae0" font-weight="600">Producer · team of 5 · Tsinghua × miHoYo competition</text></svg>
