@@ -2,14 +2,14 @@
 
 "The model proposes, a checker decides": a periwinkle chalkboard holds a three-term plan
 (FALL / WINTER / SPRING) of paper course notes joined by thin prerequisite lines.  One
-FALL placement is crossed out in pink; a Boo Tao carries that note along a dotted chalk arc
-to SPRING, where the slot glows with a gold check.  Mademoiselle Crabaletta (Furina's crab)
-cheers from the book stack.  Board tasks are hand-pinned paper notes with squiggle "writing".
+FALL placement is crossed out in pink and a dotted chalk arc leads to SPRING, where the slot
+glows with a gold check.  Official chibi Hu Tao (a Genshin Impact "Paimon's Paintings" emoji,
+(c) HoYoverse, embedded from art/ by art.py) studies a book by the window.  Board tasks are hand-pinned paper notes with squiggle "writing".
 
     build(out_dir) -> path      writes card-planner.svg into out_dir
     card(uid="pl") -> str       the standalone SVG document
 Running this file writes a debug copy to the scratchpad (never into the repo).
-Python 3 stdlib only.  No text other than the three term labels, no raster, no script.
+Python 3 stdlib only.  No text other than the three term labels, no script.
 """
 import math
 import os
@@ -20,17 +20,15 @@ sys.dont_write_bytecode = True
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
-from chars import bootao as _bt  # noqa: E402
-from chars.bootao import bootao  # noqa: E402
-from chars.salon import crabaletta  # noqa: E402
+import art as ART  # noqa: E402
 
 W, H, RX = 1600, 900, 28
 FONT = "'Hiragino Sans','PingFang SC','Segoe UI',system-ui,-apple-system,'Noto Sans CJK SC',sans-serif"
 DEBUG_OUT = ("/private/tmp/claude-501/-Users-allen-Desktop/a50b0c32-36b9-4f3d-9a23-f8832c6a6de7/"
-             "scratchpad/v10final/planner/card-planner.svg")
+             "scratchpad/v11/planner/card-planner.svg")
 
 INK = "#3b3470"        # deep indigo ink
-PLUM = "#4a2550"       # Boo Tao plum ink
+PLUM = "#4a2550"       # plum ink
 CREAM = "#fff7ea"
 GOLD = "#ffd27a"
 GOLD_D = "#f2a65a"
@@ -177,58 +175,6 @@ def squiggle(x, y, length, amp, seed, col, w=4.2, op=1.0):
     o = f' opacity="{op}"' if op < 1 else ""
     return (f'<path d="{" ".join(d)}" fill="none" stroke="{col}" stroke-width="{w}" stroke-linecap="round" '
             f'stroke-linejoin="round"{o}/>')
-
-
-# ---- Boo Tao's carrying arms for this card -------------------------------------------------
-# The shared 'carry' pose roots long thin noodle arms high on the head and lifts small mittens
-# far above it; at the README's ~420 px that reads as antennae.  For the planner the ghost holds
-# the note just over its head with short, stubby side arms: thick (11 -> 8) arms rooted low on the
-# body sides, bowing out past the cheek and ending in mittens that grip the note's lower corners.
-STUB_HAND = 68          # |x| of the mittens (the note's lower corners sit at about +-76)
-STUB_HAND_Y = -61       # mitten centre = the note's bottom edge (note bottom ~ 10 above the head top)
-
-
-def _stub_arm(k):
-    """drop-in for chars.bootao._noodle_arm(k) -> (arm drawn behind the body, mitten in front of the item)"""
-    BODY, INK_B, SHADE, INK_SOFT = _bt.BODY, _bt.INK, _bt.SHADE, _bt.INK_SOFT
-    hx, hy = k * STUB_HAND, STUB_HAND_Y
-    p0, p1, p2 = (k * 46, 4), (k * 78, -18), (k * (STUB_HAND - 1), hy + 6)
-    L, R = [], []
-    n = 16
-    for i in range(n + 1):
-        t = i / n
-        x = (1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * p1[0] + t * t * p2[0]
-        y = (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * p1[1] + t * t * p2[1]
-        dx = 2 * (1 - t) * (p1[0] - p0[0]) + 2 * t * (p2[0] - p1[0])
-        dy = 2 * (1 - t) * (p1[1] - p0[1]) + 2 * t * (p2[1] - p1[1])
-        m = math.hypot(dx, dy)
-        nx, ny = -dy / m, dx / m
-        w = 11 - 3 * t
-        L.append((x + nx * w, y + ny * w))
-        R.append((x - nx * w, y - ny * w))
-    outer = L if k < 0 else R
-    pl = lambda pts: " L".join(f"{a:.1f},{b:.1f}" for a, b in pts)  # noqa: E731
-    arm = (f'<path d="M{pl(L + R[::-1])}Z" fill="{BODY}" stroke="{INK_B}" stroke-width="3.4" stroke-linejoin="round"/>'
-           f'<path d="M{pl(outer[4:15])}" fill="none" stroke="{SHADE}" stroke-width="5" stroke-linecap="round" '
-           f'transform="translate({-k * 2.2},0)"/>')
-    # round mitten clasping the paper corner: body, hard cel shade underneath, thumb crease, gloss
-    hand = (f'<ellipse cx="{hx}" cy="{hy}" rx="11.5" ry="10" transform="rotate({k * -15} {hx} {hy})" fill="{BODY}" '
-            f'stroke="{INK_B}" stroke-width="3.4"/>'
-            f'<path d="M{hx - k * 3},{hy + 8.8} C{hx + k * 5},{hy + 8.6} {hx + k * 10.5},{hy + 4} {hx + k * 11},{hy - 1.8} '
-            f'C{hx + k * 6.4},{hy + 2.8} {hx + k * 2},{hy + 5.4} {hx - k * 3},{hy + 8.8}Z" fill="{SHADE}"/>'
-            f'<path d="M{hx - k * 5.4},{hy - 7.2} L{hx - k * 7.6},{hy - 2}" stroke="{INK_SOFT}" stroke-width="1.8" stroke-linecap="round"/>'
-            f'<ellipse cx="{hx + k * 1.6}" cy="{hy - 5.2}" rx="3" ry="1.7" fill="#ffffff"/>')
-    return arm, hand
-
-
-def bootao_holding(x, y, scale, uid, carried):
-    """Boo Tao in the 'carry' pose with this card's stubby side arms (module patched only for this call)"""
-    orig = _bt._noodle_arm
-    _bt._noodle_arm = _stub_arm
-    try:
-        return bootao(x, y, scale=scale, pose="carry", uid=uid, shadow=False, carry_svg=carried)
-    finally:
-        _bt._noodle_arm = orig
 
 
 def course_block(x, y, w, h, col, seed, u, pin="#ff8fb4", rot=0.0):
@@ -563,7 +509,6 @@ def card(uid="pl"):
     C_AZ = ("#dfe8ff", "#b9c8f6", "#8fa0e6")
     C_LV = ("#ece3ff", "#cbbcf2", "#a08ad8")
     C_CR = ("#fff1d6", "#f4d4a6", "#e8a96c")
-    C_PK = ("#ffe3ee", "#f6bcd2", "#ec8fb2")
 
     def bx(c):
         return CX[c] - BW / 2
@@ -663,7 +608,7 @@ def card(uid="pl"):
                 f'<stop offset=".7" stop-color="#ffe9e0" stop-opacity=".3"/><stop offset="1" stop-color="#ffe9e0" stop-opacity="0"/></linearGradient>')
     front.append(f'<path d="M520 704 L860 704 L1060 792 L640 792Z" fill="url(#{u}-foot)" class="{u}-ry"/>')
     front.append(f'<path d="M0 878 H{W} V{H} H0Z" fill="#d49572" opacity=".55"/>')
-    # stack of books (left) -- Boo Tao #2 hovers above it
+    # stack of books (left), partly behind Hu Tao
     books = [(70, 742, 250, 50, "#b9c8ff", "#8fa0e6"), (88, 700, 214, 42, SAKURA_L, "#f2a3c2"), (78, 664, 228, 36, "#fff1d6", "#f0c99a")]
     for (bx0, by0, bw, bh, c1, c2) in books:
         front.append(f'<path d="{rrect(bx0, by0, bw, bh, 6)}" fill="{c1}" stroke="{INK}" stroke-width="2.6"/>'
@@ -695,16 +640,8 @@ def card(uid="pl"):
     front.append(nb)
 
     # ============ characters
-    # carrier ghost (in front of the board, on the arc's trough)
-    # the item is drawn at translate(0,-66) in ghost units; y=-55 puts the note's bottom edge at
-    # -61, about 10 units above the head top (-51), so the mittens can grip its lower corners
-    carried = course_block(-76, -55, 152, 60, C_PK, 9, u, pin=PINK, rot=-2)
-    gcx, gcy, gs = 1090, 642, 1.2
-    front.append(f'<g transform="rotate(5 {gcx} {gcy})">'
-                 + bootao_holding(gcx, gcy, gs, f"{u}c", carried) + '</g>')
-    # Mademoiselle Crabaletta cheers from the book stack, claws up, facing the board
-    front.append(f'<ellipse cx="194" cy="666" rx="84" ry="7" fill="#8873c4" opacity=".32"/>')
-    front.append(crabaletta(192, 664, scale=1.0, uid=f"{u}cr", flip=True, shadow=False))
+    # chibi Hu Tao (official Genshin Impact emoji, (c) HoYoverse) studying with a book in front of the window
+    front.append(ART.place("hutao_book", 318, H + 16, 450, f"{u}ht", shadow=("#6f5fc8", .35, 10), fade=(H - 40, H + 6)))
 
     # ============ petals drifting in + dust motes in the rays
     pets = []
@@ -752,7 +689,8 @@ def card(uid="pl"):
 
     body = "".join(back) + "".join(room) + "".join(board) + "".join(front)
     label = ("Anime study corner at golden hour: a pastel chalkboard plans FALL, WINTER and SPRING courses; "
-             "a little ghost carries a crossed-out note to a gold-checked SPRING slot while a small armoured crab cheers from a stack of books")
+             "a crossed-out FALL note moves along a dotted arc to a gold-checked SPRING slot while chibi Hu Tao "
+             "(official Genshin Impact emoji, © HoYoverse) studies a book by the window")
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" aria-label="{label}">'
             f'<style>{css}</style>'
             f'<defs><clipPath id="{u}-card"><rect width="{W}" height="{H}" rx="{RX}"/></clipPath>{"".join(defs)}</defs>'

@@ -1,12 +1,12 @@
 """Night Water Academy (夜水书院) card -- 1600x900 full-bleed anime illustration.
 
-    python3 card_nwa.py            -> writes ../assets/v10/card-nwa.svg
+    python3 card_nwa.py            -> writes ../assets/v11/card-nwa.svg
     from card_nwa import build     -> build(out_dir) writes <out_dir>/card-nwa.svg, returns the path
 
-Our own non-commercial chibi fan art: Hu Tao (peace sign) on a lantern-lit jetty, Boo Tao floating over the
-water holding a paper lantern, the academy hall on moonlit water.  Characters come from chars/, the
-architecture helpers from scenes/nwa.py (imported read-only); clouds, trees, water and the jetty are
-re-drawn here.  Stdlib only, no text, no green hues; every id/class is prefixed with the uid.
+A lantern-lit jetty and the academy hall on moonlit water, with official chibi Hu Tao (a Genshin
+Impact "Paimon's Paintings" emoji, (c) HoYoverse, embedded from art/ by art.py) winking from the jetty.
+Architecture helpers come from scenes/nwa.py (imported read-only); clouds, trees, water and the jetty
+are drawn here.  Stdlib only, no text, no green hues; every id/class is prefixed with the uid.
 """
 import math
 import os
@@ -20,8 +20,7 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 from scenes import nwa as N  # noqa: E402
-from chars.hutao import hutao  # noqa: E402
-from chars.bootao import bootao  # noqa: E402
+import art as ART  # noqa: E402
 
 W, H, RX = 1600, 900, 28
 HZ = N.HZ  # 560, water line
@@ -36,12 +35,7 @@ BARK = "#54407f"
 BARK_L = "#7b66ad"
 WARM = "#ffcf86"
 WARM_L = "#fff1c9"
-LRED = "#f0768c"      # Boo Tao's lantern red (from chars/bootao.py)
 
-# Boo Tao placement: (x, y) = head centre; lantern pose at scale .95 hangs the lantern at about (-66, +47.5)
-BT_X, BT_Y, BT_S = 742, 612, .95
-LAN_X, LAN_Y = BT_X - 66, BT_Y + 47
-WATER_PT = 738           # water surface point under the ghost -> mirror line for its reflection
 HT_X, HT_Y, HT_S = 335, 846, 1.6
 
 
@@ -345,7 +339,7 @@ def sakura_tree(u, name, cx, base, w, h, rnd, lean=0):
 
 # ======================================================================= water details
 def moon_glitter(u):
-    """Bright sliced path of moonlight from the horizon toward the viewer, between Hu Tao and Boo Tao."""
+    """Bright sliced path of moonlight from the horizon toward the viewer, toward the jetty."""
     r = random.Random(3)
     o = [f'<path d="M{MX-24} {HZ} L{MX+24} {HZ} L{MX+150} {H} L{MX-150} {H}Z" fill="url(#{u}-gcol)" opacity=".45"/>',
          f'<path d="M{MX-10} {HZ} L{MX+10} {HZ} L{MX+70} {H} L{MX-70} {H}Z" fill="url(#{u}-gcol)" opacity=".8"/>']
@@ -393,57 +387,6 @@ def surface_cuts(u):
         lt.append(lens(x, y, w, h))
     return (f'<path d="{"".join(dk)}" fill="#5a5bb8" opacity=".35"/>'
             f'<path d="{"".join(lt)}" fill="#f6f2ff" opacity=".85"/>')
-
-def lantern_reflection(u):
-    """Boo Tao's red paper lantern mirrored in the water: a vertically stretched, sliced red body with a gold
-    core over a darker pool, and a long broken warm light pillar running toward the viewer."""
-    ry = 2 * WATER_PT - LAN_Y  # mirrored centre
-    o = [f'<ellipse cx="{LAN_X}" cy="{n(ry+10)}" rx="66" ry="104" fill="url(#{u}-dpool)"/>',
-         f'<ellipse cx="{LAN_X}" cy="{n(ry)}" rx="58" ry="74" fill="url(#{u}-warm)"/>']
-    r = random.Random(9)
-    # warm light pillar (behind the body), sliced
-    s = []
-    y, k = WATER_PT + 2, 0
-    while y < H:
-        dist = abs(y - ry)
-        w = max(5, (34 - dist * .16) * r.uniform(.55, 1.1))
-        s.append(f'<rect x="{n(LAN_X - w/2 + r.uniform(-4, 4))}" y="{n(y)}" width="{n(w)}" height="{n(2.4 + k*.05)}" rx="1.3" '
-                 f'opacity="{n(max(.3, .95 - dist / 150))}"/>')
-        y += 5.2 + k * .22
-        k += 1
-    o.append(f'<g class="{u}-gl2" fill="{WARM}">{"".join(s)}</g>')
-    # sliced, stretched lantern body: red shell, darker right edge, gold core, cream glint
-    RX_, RY_ = 15, 23
-    y, i, body = ry - RY_, 0, []
-    while y < ry + RY_:
-        hh = 3.6
-        f = max(0, 1 - ((y + hh / 2 - ry) / RY_) ** 2)
-        half = RX_ * math.sqrt(f)
-        dx = ((-1) ** i) * r.uniform(.8, 3.2)
-        x0 = LAN_X - half + dx
-        body.append(f'<rect x="{n(x0)}" y="{n(y)}" width="{n(2*half)}" height="{n(hh)}" rx="1.6" fill="{LRED}"/>')
-        body.append(f'<rect x="{n(x0+half*1.35)}" y="{n(y)}" width="{n(half*.65)}" height="{n(hh)}" rx="1.6" fill="#c94a6c"/>')
-        if f > .25:
-            body.append(f'<rect x="{n(LAN_X - half*.45 + dx)}" y="{n(y)}" width="{n(half*.8)}" height="{n(hh)}" rx="1.6" fill="{WARM}"/>')
-        if f > .6 and i % 2 == 0:
-            body.append(f'<rect x="{n(LAN_X - half*.35 + dx)}" y="{n(y+.6)}" width="{n(half*.35)}" height="2.2" rx="1.1" fill="{WARM_L}"/>')
-        y += hh + 1.8
-        i += 1
-    o.append(f'<g opacity=".92">{"".join(body)}</g>')
-    # mirrored caps + tassel (tassel points up in the reflection, lantern top cap is below)
-    o.append(f'<g fill="#4a2550" opacity=".55"><rect x="{LAN_X-7}" y="{n(ry+RY_+2)}" width="14" height="4" rx="2"/>'
-             f'<rect x="{LAN_X-6}" y="{n(ry-RY_-6)}" width="12" height="4" rx="2"/></g>'
-             f'<path d="M{LAN_X} {n(ry-RY_-8)} v-12 M{LAN_X-3} {n(ry-RY_-10)} v-9 M{LAN_X+3} {n(ry-RY_-10)} v-9" '
-             f'stroke="#c94a6c" stroke-width="2" stroke-linecap="round" opacity=".7"/>')
-    # ripple lenses where the reflection meets the water point
-    o.append(ripple(LAN_X, WATER_PT, 46, .85))
-    # faint broken reflection of the ghost's own tail/body (white)
-    gy = 2 * WATER_PT - (BT_Y + 62)
-    o.append(f'<g fill="#fbf8ff" opacity=".4"><rect x="{BT_X-34}" y="{n(gy)}" width="76" height="4" rx="2"/>'
-             f'<rect x="{BT_X-40}" y="{n(gy+8)}" width="70" height="4" rx="2"/><rect x="{BT_X-30}" y="{n(gy+16)}" width="84" height="4" rx="2"/>'
-             f'<rect x="{BT_X-24}" y="{n(gy+25)}" width="58" height="4" rx="2"/></g>')
-    return "".join(o)
-
 
 def split_ornaments(svg):
     """Split architecture into (base, ornaments).  The water reflection uses only the base: the small ornaments
@@ -699,7 +642,6 @@ def scene(u="nwa"):
         yy = HZ + 6 + lr.random() ** 1.6 * 80
         ln.append(f'<rect x="{n(lr.uniform(-50, 1500))}" y="{n(yy)}" width="{n(lr.uniform(80, 260))}" height="1.4" opacity="{n(lr.uniform(.35, .7))}"/>')
     out.append(f'<g fill="#fff6fb">{"".join(ln)}</g>')
-    out.append(lantern_reflection(u))
     fp = []
     for (px, py, ps_, rot) in [(860, 720, 7, -40), (1180, 840, 10, 70), (1350, 650, 6, 10), (990, 872, 9, -10), (700, 770, 6, 50),
                                (560, 700, 6, 20)]:
@@ -786,19 +728,16 @@ def css(u):
 
 def card(u="nwa"):
     defs, out = scene(u)
-    # Hu Tao on the jetty: contact shadow + figure
-    out.append(f'<ellipse cx="{HT_X-6}" cy="{HT_Y+4}" rx="118" ry="13" fill="url(#{u}-shd)"/>')
-    out.append(hutao(HT_X, HT_Y, scale=HT_S, uid=f"{u}ht", pose="peace", boo=False))
-    # Boo Tao over the water with his lantern (its reflection is drawn in the water layer)
-    out.append(bootao(BT_X, BT_Y, scale=BT_S, pose="lantern", uid=f"{u}bt", shadow=False))
+    # chibi Hu Tao (official Genshin Impact emoji, (c) HoYoverse) winking from the jetty
+    out.append(ART.place("hutao_wink", HT_X, H + 16, 480, f"{u}ht", shadow=("#6f5fc8", .35, 10), fade=(H - 40, H + 6)))
     out.append(corner_spray(u, random.Random(7)))
     out.append(drift(u))
     out.append(f'<rect width="{W}" height="{H}" fill="url(#{u}-vig)"/>')
     body = f'<g id="{u}-root">{css(u)}<defs>{"".join(defs)}</defs>{"".join(out)}</g>'
     body = re.sub(r'(?<=[ ,"(A-Za-z])(-?)0\.(\d)', r'\1.\2', body)  # 0.5 -> .5
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" '
-            f'aria-label="Anime illustration: a chibi girl in a plum-blossom hat makes a peace sign on a lantern-lit jetty '
-            f'while a little ghost floats over moonlit water with a paper lantern, an academy hall glowing behind">'
+            f'aria-label="Anime illustration: chibi Hu Tao (official Genshin Impact emoji, © HoYoverse) winks from a lantern-lit jetty '
+            f'over moonlit water, an academy hall glowing behind">'
             f'<defs><clipPath id="{u}-card"><rect width="{W}" height="{H}" rx="{RX}"/></clipPath></defs>'
             f'<g clip-path="url(#{u}-card)">{body}</g></svg>')
 
@@ -812,6 +751,6 @@ def build(out_dir):
 
 
 if __name__ == "__main__":
-    out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(HERE), "assets", "v10")
+    out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(HERE), "assets", "v11")
     p = build(out)
     print(p, os.path.getsize(p) // 1024, "KB")

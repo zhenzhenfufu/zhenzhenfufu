@@ -1,10 +1,10 @@
-"""v10 footer (1600 x 240): a calm full-bleed anime dusk over still water.
+"""v11 footer (1600 x 240): a calm full-bleed anime dusk over still water.
 
-Chevalmarin and Crabaletta (Furina's Salon pets, our own chibi fan art) play in the pale shallows at the left,
-Boo Tao waves goodbye over the water at the right, the low sun sets in the middle under the handwritten-feel line
-"thanks for stopping by" + a small plum-blossom glyph.  Pure stdlib, no script / raster / external refs.
+Official chibi Hu Tao says thanks at the left and chibi Keqing dozes on a pillow at the right (Genshin Impact
+"Paimon's Paintings" emoji, (c) HoYoverse, embedded from art/ by art.py); the low sun sets in the middle under
+"thanks for stopping by" + a small plum-blossom glyph.  Pure stdlib, no script / external refs.
 
-    python3 footer.py [out_dir]     -> writes footer.svg (default: ../assets/v10)
+    python3 footer.py [out_dir]     -> writes footer.svg (default: ../assets/v11)
     build(out_dir) -> path
 """
 import math
@@ -17,8 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-from chars import bootao as BT  # noqa: E402
-from chars import salon as SA  # noqa: E402
+import art as ART  # noqa: E402
 from scenes import nwa as NWA  # noqa: E402
 
 W, H, RX = 1600, 240, 28
@@ -36,7 +35,7 @@ INK_SOFT = "#5b4f9e"
 SAK, SAK_D, SAK_L = "#f6a9c6", "#e07aa5", "#ffe3ef"
 GOLD, GOLD_L = "#ffd48a", "#fff3d2"
 CREAM = "#fff8ef"
-DEFAULT_OUT = os.path.join(os.path.dirname(HERE), "assets", "v10")
+DEFAULT_OUT = os.path.join(os.path.dirname(HERE), "assets", "v11")
 
 
 def f(v):
@@ -233,50 +232,20 @@ def ripple(cx, cy, rx, cls=""):
 
 # ------------------------------------------------------------------ characters
 def pets():
-    """Chevalmarin bobbing in her bubble on the water, Crabaletta wading in the shallows, bubbles between."""
-    o = []
-    # warm backlight so the blue-violet pets separate from the periwinkle water
-    o.append(f'<ellipse cx="250" cy="182" rx="210" ry="70" fill="url(#{U}-back)"/>')
-    # seahorse: bubble rests on the surface, slight dip below
-    sx, sy, ss = 168, 214, .8
-    o.append(ripple(sx + 2, sy - 1, 30) + ripple(sx + 2, sy - 1, 42, f"{U}-rp"))
-    o.append(SA.chevalmarin(sx, sy, ss, uid=U + "cm", shadow=False))
-    # crab wading: above-water part solid, legs below the waterline seen faintly through the water
-    cx, cy, cs, wl = 352, 228, .66, 218
-    o.append(f'<defs><clipPath id="{U}-up"><rect x="0" y="0" width="560" height="{wl}"/></clipPath>'
-             f'<clipPath id="{U}-dn"><rect x="0" y="{wl}" width="560" height="{H-wl}"/></clipPath></defs>')
-    o.append(f'<g clip-path="url(#{U}-dn)" opacity=".38"><use href="#{U}-crab" transform="translate(0 2)"/></g>')
-    o.append(f'<g clip-path="url(#{U}-up)"><g id="{U}-crab">{SA.crabaletta(cx, cy, cs, uid=U + "cr", shadow=False)}</g></g>')
-    o.append(ripple(cx, wl, 54) + ripple(cx, wl, 66, f"{U}-rp2"))
-    # play: bubbles drifting from the seahorse's snout to the crab's raised claw
-    for bx, by, r, cls in ((228, 104, 4, f"{U}-tw"), (246, 90, 6.5, ""), (270, 82, 4.5, f"{U}-tw2"),
-                           (294, 86, 8.5, ""), (316, 104, 3.5, f"{U}-tw3"), (240, 116, 2.6, "")):
-        c = f' class="{cls}"' if cls else ""
-        o.append(f'<g{c}><circle cx="{bx}" cy="{by}" r="{r}" fill="#ffffff" fill-opacity=".25" stroke="#8f9cf0" '
-                 f'stroke-width="1.4"/><path d="M{f(bx-r*.55)} {f(by-r*.15)} A{f(r*.6)} {f(r*.6)} 0 0 1 {f(bx-r*.1)} {f(by-r*.6)}" '
-                 f'fill="none" stroke="#fff" stroke-width="{f(max(1.2, r*.32))}" stroke-linecap="round"/></g>')
-    # splash droplets kicked up by the crab
-    for dx, dy, s, rot in ((-58, -30, 1.0, -30), (-68, -18, .7, -50), (60, -26, .8, 30)):
-        x, y = cx + dx, 216 + dy
-        o.append(f'<path transform="translate({f(x)} {f(y)}) rotate({rot}) scale({s})" '
-                 f'd="M0 -7 C3 -2 5 1 5 3.5 A5 5 0 0 1 -5 3.5 C-5 1 -3 -2 0 -7Z" fill="#eef0ff" stroke="#7d84de" stroke-width="1.3"/>')
+    """Chibi Hu Tao saying thanks on the left (official Genshin Impact emoji, (c) HoYoverse)."""
+    o = [f'<ellipse cx="250" cy="182" rx="210" ry="70" fill="url(#{U}-back)"/>']
+    o.append(ART.place("hutao_thanks", 250, H + 10, 230, U + "ht", shadow=("#6f5fc8", .35, 8), fade=(H - 26, H + 4)))
     return "".join(o)
 
 
 def boo():
-    bx, by, bs = 1430, 100, .8
-    o = [f'<ellipse cx="{bx+6}" cy="198" rx="70" ry="9" fill="url(#{U}-pool)"/>',
-         f'<ellipse cx="{bx+6}" cy="198" rx="34" ry="4" fill="#7c76d0" opacity=".18"/>',
-         # ghost-light reflection: broken white slices on the water below him
-         "".join(f'<rect class="{U}-gl{k}" x="{f(bx + 6 - w/2 + dx)}" y="{y}" width="{w}" height="2.6" rx="1.3" fill="#ffffff" '
-                 f'opacity="{op}"/>' for y, w, dx, op, k in ((176, 30, -4, .8, ""), (184, 44, 6, .7, "2"), (192, 22, -10, .6, ""),
-                                                              (206, 52, 2, .55, "2"), (216, 26, 12, .45, ""))),
-         BT.bootao(bx, by, bs, pose="wave", uid=U + "bt", shadow=False, flip=False)]
-    # plum petals resting on the water (flattened) and one drifting in the air
-    for px, py, ps, rot in ((1352, 210, 6, 30), (1518, 216, 5.5, -50), (1404, 228, 7, 110), (1270, 196, 4.5, 70)):
+    """Chibi Keqing dozing on her pillow on the right (official Genshin Impact emoji, (c) HoYoverse)."""
+    o = [f'<ellipse cx="1380" cy="182" rx="210" ry="70" fill="url(#{U}-back)"/>']
+    o.append(ART.place("keqing_sleep", 1380, H + 10, 230, U + "kq", shadow=("#6f5fc8", .35, 8), fade=(H - 26, H + 4)))
+    for px, py, ps, rot in ((1200, 210, 6, 30), (1560, 216, 5.5, -50), (1250, 228, 7, 110)):
         o.append(f'<g transform="translate({px} {py}) scale(1 .5)">{NWA.petal(0, 0, ps, rot)}</g>'
                  f'<ellipse cx="{px}" cy="{py + 3}" rx="{f(ps*1.3)}" ry="1.1" fill="#ffffff" opacity=".7"/>')
-    o.append(NWA.petal(1318, 70, 5.5, -35, f"{U}-tw3"))
+    o.append(NWA.petal(1180, 70, 5.5, -35, f"{U}-tw3"))
     return "".join(o)
 
 
@@ -354,8 +323,8 @@ def svg():
             f'<radialGradient id="{U}-pool"><stop offset="0" stop-color="#ffffff" stop-opacity=".85"/>'
             f'<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>' + sd + cd + wd)
     body = [sb, f'<g id="{U}-far">{far_stratus()}{far_isles()}</g>', cb, sun(), wb, shoal(), sparkles(), thanks(), pets(), boo()]
-    label = ("Footer: an anime dusk over calm water. A seahorse in a bubble and a little crab play in the shallows, "
-             "a smug white ghost waves goodbye, and the words thanks for stopping by sit above the setting sun.")
+    label = ("Footer: an anime dusk over calm water. Chibi Hu Tao says thanks on the left and chibi Keqing dozes on a pillow "
+             "on the right (official Genshin Impact emoji, © HoYoverse); the words thanks for stopping by sit above the setting sun.")
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" '
             f'aria-label="{label}"><title>thanks for stopping by</title>{style()}<defs>{defs}</defs>'
             f'<g clip-path="url(#{U}-clip)">{"".join(body)}</g></svg>')

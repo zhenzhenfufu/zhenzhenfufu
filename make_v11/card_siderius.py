@@ -3,12 +3,11 @@
     python3 card_siderius.py          -> writes the card to the scratchpad showcase folder
     build(out_dir) -> path            -> writes card-siderius.svg into out_dir
 
-Keqing stands on the wet rooftop under a constellation whose stars trace a rising curve;
-Boo Tao presses one eye to the little tripod telescope that is aimed at that constellation.
-Scene art is adapted from scenes/siderius.py (copied here so the clouds, props and floor could
-be redrawn); characters come from chars/ unchanged.  Python 3 stdlib only.  No text, no raster,
-no script, no external refs.  Palette avoids hue 70-192.  All animation stops under
-prefers-reduced-motion.  Original non-commercial fan art.
+A wet rooftop under a constellation whose stars trace a rising curve, a tripod telescope aimed at
+it, and official chibi Keqing (a Genshin Impact "Paimon's Paintings" emoji, (c) HoYoverse, embedded
+from art/ by art.py) thinking at the bottom of the frame.  Scene art is adapted from scenes/siderius.py.
+Python 3 stdlib only.  No text, no script, no external refs.  Palette avoids hue 70-192.  All
+animation stops under prefers-reduced-motion.
 """
 import math
 import os
@@ -20,14 +19,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-from chars.keqing import keqing  # noqa: E402
-from chars.bootao import bootao  # noqa: E402
+import art as ART  # noqa: E402
 
 W, H, RX = 1600, 900, 28
 U = "csd"           # uid prefix for everything this file draws
 NAME = "card-siderius.svg"
 SHOWCASE_DIR = ("/private/tmp/claude-501/-Users-allen-Desktop/a50b0c32-36b9-4f3d-9a23-f8832c6a6de7/"
-                "scratchpad/v10final/cards")
+                "scratchpad/v11/cards")
 
 INK = "#3b3470"
 SKY = ["#9290cc", "#aaa5da", "#bfb5e5", "#d0b8e4", "#ecb9d6", "#f9c3c2", "#ffd6b8", "#ffe7c8"]
@@ -835,7 +833,7 @@ def scene(u):
     return dict(defs=defs, sky=sky, mid=mid, floor=floor, front=front, top=top, css=css)
 
 
-# ------------------------------------------------------------------ telescope + Boo Tao
+# ------------------------------------------------------------------ telescope
 def _rot(px, py, ang):
     a = math.radians(ang)
     return px * math.cos(a) - py * math.sin(a), px * math.sin(a) + py * math.cos(a)
@@ -960,7 +958,7 @@ def keqing_lit(u):
             f'<stop offset=".45" stop-color="#ffdfee" stop-opacity=".45"/>'
             f'<stop offset="1" stop-color="#ffe2ec" stop-opacity="0"/></radialGradient>')
     glow = f'<ellipse cx="{KQ_X}" cy="590" rx="330" ry="300" fill="url(#{u}kqb)"/>'
-    fig = f'<g filter="url(#{u}kqf)"><g id="{u}kqfig">{keqing(KQ_X, KQ_Y, scale=KQ_S, uid=u + "kq", pose="stand", flip=True)}</g></g>'
+    fig = ART.place("keqing_think", KQ_X, H + 14, 470, u + "kq", shadow=("#6f5fc8", .35, 10), fade=(H - 40, H + 6))
     return flt + back, glow, fig
 
 
@@ -972,7 +970,7 @@ def card():
     kdefs, kglow, kfig = keqing_lit(u)
     defs.append(kdefs)
 
-    # Boo Tao: eye (the viewer-left one, head-local (-21, +3)) on the eyecup
+    # the telescope is aimed from an (empty) eyepiece point toward the constellation target
     eye = (BT_X - 21 * BT_S, BT_Y + 3 * BT_S)
     pts = constellation_pts()
     tgt = pts[TARGET]
@@ -988,9 +986,9 @@ def card():
             f'<mask id="{u}kmask" maskUnits="userSpaceOnUse" x="500" y="{KQ_Y}" width="600" height="80">'
             f'<rect x="500" y="{KQ_Y}" width="600" height="80" fill="url(#{u}kfade)"/></mask>')
     defs.append(kref)
-    kreflect = (f'<g mask="url(#{u}kmask)"><use href="#{u}kqfig" transform="matrix(1 0 0 -1 0 {2 * KQ_Y + 4})"/></g>')
+    kreflect = ""
     beam = sight_beam(u, obj, tgt)
-    ghost = bootao(BT_X, BT_Y, scale=BT_S, pose="float", uid=u + "bt", shadow=False, flower=True)
+    ghost = ""
     # the ghost holds still while peering (his own bob would pull the eye off the eyepiece)
     hold = f"g.{u}bt-bob{{animation:none!important}}"
 
@@ -1006,8 +1004,8 @@ def card():
             + tback + ghost + tfront
             + "".join(sc["front"]) + "".join(sc["top"]))
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" '
-            f'aria-label="Anime twilight rooftop observatory: a chibi lightning swordswoman under a rising-curve '
-            f'constellation while a little ghost peers through a telescope">'
+            f'aria-label="Anime twilight rooftop observatory: chibi Keqing (official Genshin Impact emoji, © HoYoverse) '
+            f'thinking under a rising-curve constellation beside a telescope">'
             f'<style>{css}</style>'
             f'<defs><clipPath id="{u}card"><rect width="{W}" height="{H}" rx="{RX}"/></clipPath>{"".join(defs)}</defs>'
             f'<g clip-path="url(#{u}card)">{body}</g></svg>')

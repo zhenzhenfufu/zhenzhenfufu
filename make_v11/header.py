@@ -1,14 +1,13 @@
-"""v10 header: full-bleed anime dusk over calm water (1600x600).
+"""v11 header: full-bleed anime dusk over calm water (1600x600).
 
 Left ~60%: soft lavender->peach sky carrying the plain typeset intro.
-Right: chibi fan art (our own drawing, non-commercial) of Furina standing on the water in a
-theatrical 'present' pose, her Salon Solitaire trio around her, a three-tier cel-shaded cumulus (same cloud routine as the SIDERIUS card),
-a low sun with light rays, and Boo Tao hovering over the water at her side.
+Right: official chibi Furina (a Genshin Impact "Paimon's Paintings" emoji, (c) HoYoverse, embedded from
+art/ by art.py) rising out of the water, a three-tier cel-shaded cumulus and a low sun with light rays.
 
     build(out_dir) -> path of the written header.svg
-    python3 header.py [out_dir]          (default: <repo>/assets/v10)
+    python3 header.py [out_dir]          (default: <repo>/assets/v11)
 
-Python 3 stdlib only. Characters / scene helpers are imported read-only from chars/ and scenes/.
+Python 3 stdlib only. Scene helpers are imported read-only from scenes/.
 """
 import math
 import os
@@ -20,12 +19,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-from chars import bootao as BT  # noqa: E402
-from chars import furina as FU  # noqa: E402
-from chars import salon as SA  # noqa: E402
-from scenes import nwa as NWA  # noqa: E402
+import art as ART  # noqa: E402
 
-OUT_DEFAULT = os.path.join(os.path.dirname(HERE), "assets", "v10")
+OUT_DEFAULT = os.path.join(os.path.dirname(HERE), "assets", "v11")
 
 U = "hd"                 # uid prefix for every id / class in this file
 W, H, RX = 1600, 600, 28
@@ -44,10 +40,7 @@ SAKURA = "#e45f93"       # 王臻
 CREAM = "#fff6ee"
 
 # Furina placement
-FX, FY, FS = 1306, 556, 1.28
-CM = (1128, 246)                 # Chevalmarin anchor (bubble bottom): beside Furina's hat, right of the text
-BOO = (1128, 494, .8)            # Boo Tao head centre + scale (float pose, flipped to face Furina)
-BOO_WATER = 568                  # water point under Boo Tao (ripple ring + reflection axis)
+FX, FY, FH = 1296, 606, 470   # Furina sticker: bottom-centre anchor and drawn height
 
 # text block
 X0 = 72
@@ -537,45 +530,22 @@ def text_block():
 
 # ------------------------------------------------------------------ cast
 def cast():
-    """Returns (defs, front-of-water figures) ."""
+    """Official chibi Furina emoji (HoYoverse) rising out of the dusk water on the right, with sparkles and droplets."""
     o = []
     # backlight halo so the navy coat separates from the warm sky
-    o.append(f'<ellipse cx="{FX - 6}" cy="{FY - 190}" rx="230" ry="230" fill="url(#{U}-halo)"/>')
-    # Chevalmarin floating in her bubble high on the right, clear of the text band
-    cmx, cmy = CM
-    o.append(f'<ellipse cx="{cmx + 4}" cy="{cmy - 66}" rx="74" ry="80" fill="url(#{U}-glow)"/>')
-    o.append(SA.chevalmarin(cmx, cmy, scale=.72, uid=f"{U}-cm", shadow=False))
-    # Usher floating high on the right, raising his hat to the audience
-    o.append(f'<ellipse cx="1512" cy="282" rx="84" ry="76" fill="url(#{U}-glow)"/>')
-    o.append(SA.usher(1514, 334, scale=.7, uid=f"{U}-us", shadow=False, flip=True))
-    # Furina (+ ripple rings, splash, droplets)
-    o.append(ripple_rings(FX, FY, 54))
-    o.append(f'<g id="{U}-fug">{FU.furina(FX, FY, scale=FS, uid=f"{U}-fu", pose="present")}</g>')
-    o.append(splash(FX - 14, FY + 2, .8))
-    for x, y, r, rot, cls in [(1186, 300, 6.5, -14, "bob"), (1230, 250, 4.5, 10, "bob2"), (1172, 446, 5, -20, "bob2"),
-                              (1408, 270, 5.5, 18, "bob"), (1432, 386, 4.2, 8, "bob2"), (1360, 222, 3.6, -6, "bob")]:
+    o.append(f'<ellipse cx="{FX}" cy="{FY - 250}" rx="300" ry="280" fill="url(#{U}-halo)"/>')
+    o.append(ART.place("furina_scroll", FX, FY, FH, f"{U}-fu", shadow=("#6f5fc8", .35, 10), fade=(FY - 70, FY - 4)))
+    for x, y, r, rot, cls in [(1030, 300, 6.5, -14, "bob"), (1060, 220, 4.5, 10, "bob2"), (1018, 450, 5, -20, "bob2"),
+                              (1560, 270, 5.5, 18, "bob"), (1540, 400, 4.2, 8, "bob2")]:
         o.append(droplet(x, y, r, rot, f"{U}-{cls}"))
-    # Boo Tao (nearer the viewer than Furina) hovering just above the water on Furina's presenting side, turned toward her
-    bx, by, bs = BOO
-    o.append(ripple_rings(bx + 6, BOO_WATER, 40, k=2, op=.85))
-    o.append(f'<g id="{U}-btg">{BT.bootao(bx, by, scale=bs, pose="float", uid=f"{U}-bt", shadow=False, flip=True, flower=True)}</g>')
-    # Crabaletta on the water at her feet
-    o.append(ripple_rings(1462, 583, 52, k=2, op=.8))
-    o.append(f'<g id="{U}-crg">{SA.crabaletta(1462, 583, scale=.6, uid=f"{U}-cr", shadow=False, flip=True)}</g>')
-    # sparkles around the scene
-    for x, y, r, col, cls in [(1060, 268, 7, "#ffffff", "tw"), (1236, 168, 6, "#ffe6a8", "tw2"), (1450, 120, 8, "#ffffff", "tw"),
-                              (1556, 450, 6, "#ffd0e0", "tw2"), (1004, 420, 5, "#ffffff", "tw2")]:
+    for x, y, r, col, cls in [(1050, 160, 7, "#ffffff", "tw"), (1560, 150, 8, "#ffe6a8", "tw2"), (1470, 60, 6, "#ffffff", "tw"),
+                              (1580, 480, 6, "#ffd0e0", "tw2"), (1010, 400, 5, "#ffffff", "tw2")]:
         o.append(sparkle(x, y, r, col, 1, f"{U}-{cls}"))
     return "".join(o)
 
 
 def reflections():
-    """Mirrored, sliced, faded copies of the figures standing on the water (no extra bytes: <use>)."""
-    o = []
-    for ref, axis, op in [(f"{U}-fug", FY, .42), (f"{U}-crg", 583, .38), (f"{U}-btg", BOO_WATER, .34)]:
-        o.append(f'<g opacity="{op}"><use href="#{ref}" transform="translate(0,{2 * axis}) scale(1,-1)"/></g>')
-    # slit the reflections into wavering bands with thin water-coloured lines
-    return "".join(o)
+    return ""
 
 
 # ------------------------------------------------------------------ document
@@ -588,8 +558,7 @@ def svg():
             "Now: Rare AI Lab (Prof. Aobo Li) · SIDERIUS, an open-source auto-ML agent for science. "
             "Before: AI Agent Development Intern · Pfizer China R&D (2026). "
             "Also: I make games · Night Water Academy 夜水书院 (UE5). "
-            "Illustration: chibi fan art of Furina standing on calm dusk water with her Salon trio, "
-            "under cel-shaded clouds, while a little ghost floats over the water beside her.")
+            "Illustration: chibi Furina (an official Genshin Impact emoji, © HoYoverse) rising out of calm dusk water under cel-shaded clouds.")
     body = [
         # the low sun: its bloom bleeds over the cloud bases on the horizon behind Furina
         f'<g clip-path="url(#{U}-sky)">{sky_layer()}{sky_art}'

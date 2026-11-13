@@ -2,15 +2,15 @@
 
     build(out_dir) -> path      writes card-majorana.svg into out_dir
     build_svg()    -> str       the standalone 1600x900 SVG
-    python3 card_majorana.py [out_dir]   (default: ../assets/v10)
+    python3 card_majorana.py [out_dir]   (default: ../assets/v11)
 
 A glowing germanium-crystal string in a frosted cryostat (left), a big curved holographic panel
 with a faint stack of lavender waveforms and one bold waveform whose sharp rise is picked out in
-gold (centre/right), "signal" (ticked) / "background" tabs, Gentilhomme Usher peering at the rise
-through his monocle and a magnifier, and Surintendante Chevalmarin floating by in her bubble.
+gold (centre/right), "signal" (ticked) / "background" tabs, and official chibi Furina (a Genshin Impact
+"Paimon's Paintings" emoji, (c) HoYoverse, embedded from art/ by art.py) gasping at the find.
 Behind: a panoramic aquarium window full of periwinkle water and light rays.
 
-Non-commercial fan art drawn from scratch (no official art traced or embedded).
+The scene is drawn from scratch; the only raster is the embedded official chibi emoji.
 Python 3 stdlib only.  No script / image / foreignObject / external refs.  No hue 70-192.
 """
 import math
@@ -22,7 +22,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.dont_write_bytecode = True     # never leave __pycache__ in the repo
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
-from chars import salon  # noqa: E402
+import art as ART  # noqa: E402
 
 W, H, RX = 1600, 900, 28
 U = "mj"                      # uid prefix for every id / class in this card
@@ -189,9 +189,6 @@ def defs():
     d.append(lg(f"{U}-desk", 0, DTOP + 10, 0, DTOP + 92, [(0, "#cdbdf2"), (1, "#a593dc")]))
     d.append(lg(f"{U}-desktop", 0, 0, 1, 0, [(0, "#f6f2ff"), (.55, "#ece6ff"), (1, "#d9d0fb")], units=False))
     d.append(lg(f"{U}-tab", 0, 0, 0, 1, [(0, "#fff0bf"), (.55, "#ffd986"), (1, "#f7c463")], units=False))
-    d.append(lg(f"{U}-lens", 0, 0, 0, 1, [(0, "#fffdf6", .97), (1, "#f4eeff", .93)], units=False))
-    d.append(lg(f"{U}-arm", 0, GY - 80, 0, GY + 30, [(0, "#6175de"), (.6, "#7b8aee"), (1, "#9c95f4")]))
-    d.append(lg(f"{U}-cone", 0, 0, 0, 1, [(0, "#ffe7a6", .5), (1, "#fff3d0", .08)], units=False))
     d.append(lg(f"{U}-mist", 0, 0, 0, 1, [(0, WHITE, 0), (.5, WHITE, .75), (1, "#efe9ff", .2)], units=False))
     d.append(f'<filter id="{U}-blur" x="-20%" y="-20%" width="140%" height="140%">'
              f'<feGaussianBlur stdDeviation="6"/></filter>')
@@ -226,10 +223,6 @@ def style():
             f".{c}-tw3{{animation:{c}-tw 2.9s ease-in-out -1.9s infinite}}"
             f".{c}-bob{{animation:{c}-bob 6s ease-in-out infinite}}"
             f".{c}-bob2{{animation:{c}-bob 7.5s ease-in-out -2s infinite}}"
-            # Salon emitters ship a positive 1.6s delay (bubble would sit still, then vanish): start them
-            # mid-cycle instead.  Higher specificity than salon's own rule; reduced-motion still wins.
-            f"svg .{c}us-up2,svg .{c}cm-up2{{animation-delay:-1.6s}}"
-            f"svg .{c}us-tw2,svg .{c}cm-tw2{{animation-delay:-1.2s}}"
             f".{c}-scan{{animation:{c}-scan 6.5s ease-in-out infinite}}"
             f"@media (prefers-reduced-motion: reduce){{.{c}-ray,.{c}-ray2,.{c}-up,.{c}-up2,.{c}-up3,.{c}-glow,"
             f".{c}-gold,.{c}-tw,.{c}-tw2,.{c}-tw3,.{c}-bob,.{c}-bob2,.{c}-scan{{animation:none}}}}"
@@ -730,147 +723,7 @@ def tabs():
     return "".join(o)
 
 
-# ------------------------------------------------------------------ magnifier + gripping arm
-# Handle frame: origin G (the grip), unit a runs down the handle toward its end, n is the normal
-# (+v = lower-right side, away from Usher).  Usher's body sits on the -v side.
-GX, GY = 922, 692
-AX, AY = -0.57, 0.82
-NX, NY = 0.82, 0.57
-LR = 58
-LX, LY = round(GX - 92 * AX), round(GY - 92 * AY)     # lens centre, 92 px up the handle axis
-H_U0, H_U1, H_R = -36, 44, 8.5                       # handle extent along a, half-width
-TILT = 0.9                                           # lens foreshortened toward the monocle eye
-EYE = (830, 640)                                     # Usher's monocle (card coords)
-
-
-def uv(u, v):
-    return GX + u * AX + v * NX, GY + u * AY + v * NY
-
-
-def catmull(ctrl, per=6):
-    pts = []
-    c = [ctrl[0]] + list(ctrl) + [ctrl[-1]]
-    for i in range(1, len(c) - 2):
-        p0, p1, p2, p3 = c[i - 1], c[i], c[i + 1], c[i + 2]
-        for k in range(per):
-            t = k / per
-            t2, t3 = t * t, t * t * t
-            pts.append(tuple(.5 * (2 * p1[j] + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2
-                                    + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t3) for j in (0, 1)))
-    pts.append(c[-2])
-    return pts
-
-
-# arm centre line in (u, v): out from behind the body, behind the handle, round the front, tip curl
-ARM_UV = [(30, -64), (27, -40), (24, -19), (22, 0), (21, 13), (16, 23), (6, 21), (0, 9), (-3, -4),
-          (-9, -15), (-17, -22), (-26, -21), (-30, -13), (-26, -7)]
-
-
-def handle_strokes():
-    x0, y0 = uv(H_U0, 0)
-    x1, y1 = uv(H_U1, 0)
-    hx, hy = uv(H_U0, -3.2)
-    hx1, hy1 = uv(H_U1 - 4, -3.2)
-    o = (f'<path d="M{f(x0)},{f(y0)} L{f(x1)},{f(y1)}" stroke="{INK}" stroke-width="{2 * H_R}" stroke-linecap="round"/>'
-         f'<path d="M{f(x0)},{f(y0)} L{f(x1)},{f(y1)}" stroke="#b28ad6" stroke-width="{2 * H_R - 6}" stroke-linecap="round"/>'
-         f'<path d="M{f(hx)},{f(hy)} L{f(hx1)},{f(hy1)}" stroke="#e7d6ff" stroke-width="3" stroke-linecap="round"/>')
-    # gold ferrule where the handle meets the rim
-    fa, fb = uv(-29, 0), uv(-24, 0)
-    o += (f'<path d="M{f(fa[0])},{f(fa[1])} L{f(fb[0])},{f(fb[1])}" stroke="{INK}" stroke-width="{2 * H_R + 6}"/>'
-          f'<path d="M{f(fa[0])},{f(fa[1])} L{f(fb[0])},{f(fb[1])}" stroke="{GOLD}" stroke-width="{2 * H_R + 1}"/>')
-    hi = uv(-28.5, -H_R - 1), uv(-25, -H_R - 1)
-    o += f'<path d="M{f(hi[0][0])},{f(hi[0][1])} L{f(hi[1][0])},{f(hi[1][1])}" stroke="{GOLD_HI}" stroke-width="2.4" stroke-linecap="round"/>'
-    return o
-
-
-def arm():
-    """Usher's tentacle curled round the magnifier handle (same tube style as his other arms)."""
-    pts = catmull([uv(u, v) for u, v in ARM_UV], 6)
-    w0, w1 = 23, 5.5
-    d = salon._strip(pts, w0, w1)
-    o = [salon._cel(f"{U}ar", "arm", d, f"url(#{U}-arm)",
-                    shadows=[(salon._strip(pts, w0, w1, -.06, .7), salon.SHADE, .3)],
-                    highlights=[(salon._strip(pts, w0, w1, -.36, -.16, cap=False, t0=.18, t1=.62), "#a9b9ff", .9)],
-                    sw=2.1 * 1.55, heavy=1.2)]
-    # suction cups along the underside of the coil and the curl
-    L = [0.0]
-    for i in range(1, len(pts)):
-        L.append(L[-1] + math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]))
-    for t in (.36, .47, .80, .90):
-        i = min(range(len(L)), key=lambda k: abs(L[k] / L[-1] - t))
-        j0, j1 = max(0, i - 1), min(len(pts) - 1, i + 1)
-        dx, dy = pts[j1][0] - pts[j0][0], pts[j1][1] - pts[j0][1]
-        ln = math.hypot(dx, dy) or 1
-        w = w0 + (w1 - w0) * L[i] / L[-1]
-        cx, cy = pts[i][0] - dy / ln * w * .3, pts[i][1] + dx / ln * w * .3
-        r = max(1.9, w * .17)
-        o.append(f'<ellipse cx="{f(cx)}" cy="{f(cy)}" rx="{f(r)}" ry="{f(r * .78)}" '
-                 f'transform="rotate({f(math.degrees(math.atan2(dy, dx)))} {f(cx)} {f(cy)})" fill="#c9d3ff" '
-                 f'stroke="{salon.INK}" stroke-width="1" stroke-opacity=".35"/>')
-    return "".join(o)
-
-
-def arm_clip():
-    """The arm passes BEHIND the handle at u 12..36: cut it out there, the cut edge sitting on the
-    handle's own ink border (|v| = 7), so no re-painted handle and no anti-aliasing seams."""
-    q = [uv(12, -7), uv(36, -7), uv(36, 7), uv(12, 7)]
-    return (f'<clipPath id="{U}-armclip"><path clip-rule="evenodd" '
-            f'd="M0,0 H{W} V{H} H0 Z {P(q)}Z"/></clipPath>')
-
-
-def lens():
-    o = [f'<clipPath id="{U}-lclip"><circle cx="{LX}" cy="{LY}" r="{LR}"/></clipPath>']
-    inner = [f'<rect x="{LX - LR}" y="{LY - LR}" width="{2 * LR}" height="{2 * LR}" fill="url(#{U}-lens)"/>']
-    gl = " ".join(f"M{LX - LR},{LY - 30 + k * 22} H{LX + LR}" for k in range(4)) + " " + \
-        " ".join(f"M{LX - 44 + k * 22},{LY - LR} V{LY + LR}" for k in range(5))
-    inner.append(f'<path d="{gl}" stroke="#d9cff8" stroke-width="1.4"/>')
-    base, top = LY + 26, LY - 28
-    xr = LX - 8
-    zoom_rise = f"M{xr - 6},{base} C{xr + 2},{base} {xr + 2},{top} {xr + 12},{top}"
-    inner.append(f'<path d="M{LX - LR},{base + 1} L{xr - 6},{base}" stroke="{INK}" stroke-width="6" stroke-linecap="round"/>'
-                 f'<path d="M{xr + 12},{top} C{xr + 30},{top + 1} {LX + 30},{top + 5} {LX + LR},{top + 9}" '
-                 f'fill="none" stroke="{INK}" stroke-width="6" stroke-linecap="round"/>'
-                 f'<path d="{zoom_rise}" fill="none" stroke="{GOLD}" stroke-width="20" opacity=".6" filter="url(#{U}-blur2)"/>'
-                 f'<path d="{zoom_rise}" fill="none" stroke="{GOLD_D}" stroke-width="11" stroke-linecap="round"/>'
-                 f'<path d="{zoom_rise}" fill="none" stroke="{GOLD}" stroke-width="7" stroke-linecap="round"/>')
-    inner.append(f'<path d="M{LX - 36},{LY - 26} A40,40 0 0,1 {LX - 6},{LY - 46}" fill="none" stroke="{WHITE}" '
-                 f'stroke-width="8" stroke-linecap="round" opacity=".9"/>'
-                 f'<circle cx="{LX - 40}" cy="{LY - 8}" r="3.2" fill="{WHITE}"/>')
-    o.append(f'<g clip-path="url(#{U}-lclip)">{"".join(inner)}</g>')
-    o.append(f'<circle cx="{LX}" cy="{LY}" r="{LR + 4}" fill="none" stroke="{INK}" stroke-width="12"/>'
-             f'<circle cx="{LX}" cy="{LY}" r="{LR + 4}" fill="none" stroke="{GOLD}" stroke-width="7"/>'
-             f'<path d="M{LX - LR - 2},{LY - 10} A{LR + 4},{LR + 4} 0 0,1 {LX - 6},{LY - LR - 3}" fill="none" stroke="{GOLD_HI}" '
-             f'stroke-width="2.6" stroke-linecap="round"/>'
-             f'<path d="M{LX + LR + 1},{LY + 14} A{LR + 4},{LR + 4} 0 0,1 {LX + 14},{LY + LR + 1}" fill="none" stroke="{GOLD_SH}" '
-             f'stroke-width="3" stroke-linecap="round"/>')
-    # foreshorten the glass along the lens->monocle direction so it reads as turned toward his eye
-    phi = math.degrees(math.atan2(EYE[1] - LY, EYE[0] - LX))
-    return (f'<g transform="translate({LX},{LY}) rotate({f(phi)}) scale({TILT},1) rotate({f(-phi)}) '
-            f'translate({-LX},{-LY})">{"".join(o)}</g>')
-
-
-def magnifier():
-    """Light cone (static) + magnifier and Usher's gripping arm, bobbing in sync with his body.
-
-    Drawn BEFORE Usher so the arm's root tucks behind his body."""
-    ax, ay = wp(ux(UR - .01), vy(.25))
-    bx, by = wp(ux(UR + RW + .03), vy(.25))
-    cone = (f'<path d="M{f(ax)},{f(ay)} L{f(bx)},{f(by)} L{LX + LR - 8},{LY - 6} L{LX - LR + 8},{LY - 6}Z" '
-            f'fill="url(#{U}-cone)"/>')
-    held = (handle_strokes() + arm_clip() + f'<g clip-path="url(#{U}-armclip)">{arm()}</g>' + lens()
-            + sparkle(LX + LR + 2, LY - LR + 6, 11, GOLD_HI, 1, f"{U}-tw2"))
-    ux_, uy_, us_, lean = USH
-    # same frame + bob animation as Usher (class from salon's own style), then back to card coords
-    return (cone + f'<g transform="rotate({lean} {ux_} {uy_}) translate({ux_},{uy_}) scale({us_})">'
-            f'<g class="{U}us-bob"><g transform="scale({1 / us_:.6f}) translate({-ux_},{-uy_}) '
-            f'rotate({-lean} {ux_} {uy_})">{held}</g></g></g>')
-
-
 # ------------------------------------------------------------------ assemble
-USH = (788, DTOP + 4, 1.55, 7)       # x, y, scale, lean (deg)
-CHE = (1318, 756, 1.3)
-
-
 def build_svg():
     rnd = random.Random(11)
     body = [window(rnd), floor(rnd)]
@@ -879,18 +732,11 @@ def build_svg():
     body.append(cryostat(rnd))
     body.append(cables())
     body.append(beam())
-    body.append(f'<ellipse cx="{USH[0] + 10}" cy="{USH[1] - 120}" rx="190" ry="170" fill="url(#{U}-back)" opacity=".6"/>')
     body.append(panel())
     body.append(desk())
-    ux_, uy_, us_, lean = USH
-    body.append(f'<ellipse cx="{ux_ + 6}" cy="{uy_ - 2}" rx="78" ry="10" fill="#6f62c0" opacity=".25"/>')
-    body.append(magnifier())
-    body.append(f'<g transform="rotate({lean} {ux_} {uy_})">'
-                + salon.usher(ux_, uy_, us_, uid=f"{U}us", shadow=False) + "</g>")
-    cx_, cy_, cs_ = CHE
-    body.append(f'<ellipse cx="{cx_ - 6}" cy="{cy_ - 110}" rx="150" ry="160" fill="url(#{U}-back)"/>'
-                f'<ellipse cx="{cx_ + 4}" cy="{DTOP - 6}" rx="56" ry="8" fill="#6f62c0" opacity=".22"/>')
-    body.append(salon.chevalmarin(cx_, cy_, cs_, uid=f"{U}cm", flip=True, shadow=False, strong_rim=True))
+    # chibi Furina (official Genshin Impact emoji, (c) HoYoverse): "!" at the gold pulse
+    body.append(f'<ellipse cx="1310" cy="640" rx="230" ry="230" fill="url(#{U}-back)"/>')
+    body.append(ART.place("furina_gasp", 1318, H + 16, 470, f"{U}fu", shadow=("#6f5fc8", .35, 10), fade=(H - 40, H + 6)))
     # out-of-focus foreground bubbles (depth)
     for bx, by, r, op in ((70, 860, 64, .5), (1560, 70, 54, .45), (1240, 860, 30, .4)):
         body.append(f'<circle cx="{bx}" cy="{by}" r="{r}" fill="url(#{U}-bokeh)" opacity="{op}"/>'
@@ -901,9 +747,9 @@ def build_svg():
                                   (470, 470, 6, GOLD_HI, "tw2"), (1200, 640, 7, WHITE, "tw")):
         body.append(sparkle(sx, sy, r, col, 1, f"{U}-{cls}"))
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" '
-            f'aria-label="Signal or Background? Anime fan art: an underground aquarium lab with a glowing germanium '
+            f'aria-label="Signal or Background? Anime illustration: an underground aquarium lab with a glowing germanium '
             f'crystal in a frosted cryostat, a holographic panel of detector waveforms with one pulse rise in gold, '
-            f'a top-hatted octopus inspecting it through a magnifier and a seahorse floating in a bubble">'
+            f'and chibi Furina (official Genshin Impact emoji, © HoYoverse) gasping at the find">'
             f'{defs()}{style()}<g clip-path="url(#{U}-card)">{"".join(body)}</g></svg>')
 
 
@@ -916,6 +762,6 @@ def build(out_dir):
 
 
 if __name__ == "__main__":
-    out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(HERE), "assets", "v10")
+    out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(HERE), "assets", "v11")
     p = build(out)
     print(p, os.path.getsize(p) // 1024, "KB")
