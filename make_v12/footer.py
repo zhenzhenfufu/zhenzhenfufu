@@ -312,14 +312,18 @@ def sparkles():
     return "".join(star4(x, y, r, c, 1, f"{U}-{k}") for x, y, r, c, k in pts)
 
 
-CREDIT = "Chibi Genshin Impact emoji \u00a9 HoYoverse \u00b7 used non-commercially"
+CREDIT = ("Chibi characters: official Genshin Impact \u201cPaimon\u2019s Paintings\u201d emoji",
+          "Genshin Impact \u00a9 HoYoverse \u00b7 non-commercial \u00b7 scenes are my own")
 
 
 def credit():
-    a = (f'x="{W // 2}" y="{H - 20}" text-anchor="middle" font-family="{FONT}" font-size="21" font-weight="600" '
-         f'letter-spacing=".3"')
-    return (f'<text {a} fill="{CREAM}" stroke="{CREAM}" stroke-width="5" stroke-linejoin="round" opacity=".55">{CREDIT}</text>'
-            f'<text {a} fill="{INK_SOFT}">{CREDIT}</text>')
+    o = []
+    for line, y in zip(CREDIT, (H - 44, H - 16)):
+        a = (f'x="{W // 2}" y="{y}" text-anchor="middle" font-family="{FONT}" font-size="21" font-weight="600" '
+             f'letter-spacing=".2"')
+        o.append(f'<text {a} fill="{CREAM}" stroke="{CREAM}" stroke-width="5" stroke-linejoin="round" opacity=".6">{line}</text>'
+                 f'<text {a} fill="{INK_SOFT}">{line}</text>')
+    return "".join(o)
 
 
 # ------------------------------------------------------------------ document
