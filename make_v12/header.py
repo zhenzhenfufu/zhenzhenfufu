@@ -1,11 +1,12 @@
-"""v11 header: full-bleed anime dusk over calm water (1600x600).
+"""v12 header: full-bleed anime dusk over calm water (1600x600); top of the README sheet, so only
+the top corners are rounded.
 
 Left ~60%: soft lavender->peach sky carrying the plain typeset intro.
 Right: official chibi Furina (a Genshin Impact "Paimon's Paintings" emoji, (c) HoYoverse, embedded from
 art/ by art.py) rising out of the water, a three-tier cel-shaded cumulus and a low sun with light rays.
 
     build(out_dir) -> path of the written header.svg
-    python3 header.py [out_dir]          (default: <repo>/assets/v11)
+    python3 header.py [out_dir]          (default: <repo>/assets/v12)
 
 Python 3 stdlib only. Scene helpers are imported read-only from scenes/.
 """
@@ -21,7 +22,7 @@ if HERE not in sys.path:
 
 import art as ART  # noqa: E402
 
-OUT_DEFAULT = os.path.join(os.path.dirname(HERE), "assets", "v11")
+OUT_DEFAULT = os.path.join(os.path.dirname(HERE), "assets", "v12")
 
 U = "hd"                 # uid prefix for every id / class in this file
 W, H, RX = 1600, 600, 28
@@ -118,7 +119,7 @@ def defs():
     a = U
     sx, sy = SUN
     return (
-        f'<clipPath id="{a}-card"><rect width="{W}" height="{H}" rx="{RX}"/></clipPath>'
+        f'<clipPath id="{a}-card"><path d="M0 {H} V{RX} A{RX} {RX} 0 0 1 {RX} 0 H{W - RX} A{RX} {RX} 0 0 1 {W} {RX} V{H} Z"/></clipPath>'
         f'<clipPath id="{a}-sky"><rect width="{W}" height="{HZ}"/></clipPath>'
         f'<clipPath id="{a}-wat"><rect y="{HZ}" width="{W}" height="{H - HZ}"/></clipPath>'
         # dusk sky: periwinkle top -> lavender -> sakura -> peach at the horizon

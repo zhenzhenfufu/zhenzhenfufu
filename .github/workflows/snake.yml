@@ -17,13 +17,34 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: Platane/snk@v3
+      # svg-only runs as a plain JS action, so dist/ stays writable for the next step
+      - uses: Platane/snk/svg-only@v3
         with:
           github_user_name: ${{ github.repository_owner }}
           # anime pastel: lavender dots, sakura snake
           outputs: |
             dist/snake-light.svg?color_snake=#ff7aa8&color_dots=#f6f0ff,#e2dafc,#c4b5ff,#9f8cff,#6a5ae0
             dist/snake-dark.svg?color_snake=#ff9cc0&color_dots=#1f1b2e,#3b3166,#5d4fb0,#8f80ff,#c4b5ff
+            dist/snake-sheet.svg?color_snake=#ff7aa8&color_dots=#e4dcfa,#d2c6fb,#b5a4ff,#9381f5,#6a5ae0
+
+      # snk leaves the SVG background transparent; paint snake-sheet.svg in the README's
+      # pale-lavender sheet colour so it tiles seamlessly between the other panels.
+      - name: Paint the README sheet colour behind snake-sheet.svg
+        run: |
+          python3 - <<'PY'
+          import re
+          p = "dist/snake-sheet.svg"
+          s = open(p).read()
+          vb = re.search(r'viewBox="([^"]+)"', s).group(1)
+          x, y, w, h = (float(v) for v in vb.split())
+          pad = 20  # widen the side margins to match the other panels
+          x, w = x - pad, w + 2 * pad
+          s = s.replace(f'viewBox="{vb}"', f'viewBox="{x:g} {y:g} {w:g} {h:g}"', 1)
+          s = re.sub(r'(<svg\b[^>]*?) width="[^"]*" height="[^"]*"', rf'\1 width="{w:g}" height="{h:g}"', s, count=1)
+          rect = f'<rect x="{x:g}" y="{y:g}" width="{w:g}" height="{h:g}" fill="#f3eefc"/>'
+          s = re.sub(r"(<svg\b[^>]*>)", lambda m: m.group(1) + rect, s, count=1)
+          open(p, "w").write(s)
+          PY
 
       - uses: crazy-max/ghaction-github-pages@v4
         with:

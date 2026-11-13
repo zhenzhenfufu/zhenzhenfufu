@@ -1,10 +1,11 @@
-"""v11 footer (1600 x 240): a calm full-bleed anime dusk over still water.
+"""v12 footer (1600 x 240): a calm full-bleed anime dusk over still water; bottom of the README sheet,
+so only the bottom corners are rounded.  Carries the HoYoverse credit line.
 
 Official chibi Hu Tao says thanks at the left and chibi Keqing dozes on a pillow at the right (Genshin Impact
 "Paimon's Paintings" emoji, (c) HoYoverse, embedded from art/ by art.py); the low sun sets in the middle under
 "thanks for stopping by" + a small plum-blossom glyph.  Pure stdlib, no script / external refs.
 
-    python3 footer.py [out_dir]     -> writes footer.svg (default: ../assets/v11)
+    python3 footer.py [out_dir]     -> writes footer.svg (default: ../assets/v12)
     build(out_dir) -> path
 """
 import math
@@ -35,7 +36,7 @@ INK_SOFT = "#5b4f9e"
 SAK, SAK_D, SAK_L = "#f6a9c6", "#e07aa5", "#ffe3ef"
 GOLD, GOLD_L = "#ffd48a", "#fff3d2"
 CREAM = "#fff8ef"
-DEFAULT_OUT = os.path.join(os.path.dirname(HERE), "assets", "v11")
+DEFAULT_OUT = os.path.join(os.path.dirname(HERE), "assets", "v12")
 
 
 def f(v):
@@ -311,18 +312,29 @@ def sparkles():
     return "".join(star4(x, y, r, c, 1, f"{U}-{k}") for x, y, r, c, k in pts)
 
 
+CREDIT = "Chibi Genshin Impact emoji \u00a9 HoYoverse \u00b7 used non-commercially"
+
+
+def credit():
+    a = (f'x="{W // 2}" y="{H - 20}" text-anchor="middle" font-family="{FONT}" font-size="21" font-weight="600" '
+         f'letter-spacing=".3"')
+    return (f'<text {a} fill="{CREAM}" stroke="{CREAM}" stroke-width="5" stroke-linejoin="round" opacity=".55">{CREDIT}</text>'
+            f'<text {a} fill="{INK_SOFT}">{CREDIT}</text>')
+
+
 # ------------------------------------------------------------------ document
 def svg():
     sd, sb = sky()
     cd, cb = clouds()
     wd, wb = water()
-    defs = (f'<clipPath id="{U}-clip"><rect width="{W}" height="{H}" rx="{RX}"/></clipPath>'
+    defs = (f'<clipPath id="{U}-clip"><path d="M0 0 H{W} V{H - RX} A{RX} {RX} 0 0 1 {W - RX} {H} H{RX} A{RX} {RX} 0 0 1 0 {H - RX} Z"/></clipPath>'
             f'<radialGradient id="{U}-back"><stop offset="0" stop-color="#fff6ee" stop-opacity=".8"/>'
             f'<stop offset=".5" stop-color="#ffe6ef" stop-opacity=".4"/><stop offset="1" stop-color="#ffe6ef" stop-opacity="0"/>'
             f'</radialGradient>'
             f'<radialGradient id="{U}-pool"><stop offset="0" stop-color="#ffffff" stop-opacity=".85"/>'
             f'<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>' + sd + cd + wd)
-    body = [sb, f'<g id="{U}-far">{far_stratus()}{far_isles()}</g>', cb, sun(), wb, shoal(), sparkles(), thanks(), pets(), boo()]
+    body = [sb, f'<g id="{U}-far">{far_stratus()}{far_isles()}</g>', cb, sun(), wb, shoal(), sparkles(), thanks(), pets(), boo(),
+            credit()]
     label = ("Footer: an anime dusk over calm water. Chibi Hu Tao says thanks on the left and chibi Keqing dozes on a pillow "
              "on the right (official Genshin Impact emoji, © HoYoverse); the words thanks for stopping by sit above the setting sun.")
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" '

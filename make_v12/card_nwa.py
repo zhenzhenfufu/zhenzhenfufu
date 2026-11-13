@@ -1,6 +1,6 @@
 """Night Water Academy (夜水书院) card -- 1600x900 full-bleed anime illustration.
 
-    python3 card_nwa.py            -> writes ../assets/v11/card-nwa.svg
+    python3 card_nwa.py            -> writes ../assets/v12/card-nwa.svg
     from card_nwa import build     -> build(out_dir) writes <out_dir>/card-nwa.svg, returns the path
 
 A lantern-lit jetty and the academy hall on moonlit water, with official chibi Hu Tao (a Genshin
@@ -751,6 +751,6 @@ def build(out_dir):
 
 
 if __name__ == "__main__":
-    out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(HERE), "assets", "v11")
+    out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(HERE), "assets", "v12")
     p = build(out)
     print(p, os.path.getsize(p) // 1024, "KB")
