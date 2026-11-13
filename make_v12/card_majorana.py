@@ -2,7 +2,7 @@
 
     build(out_dir) -> path      writes card-majorana.svg into out_dir
     build_svg()    -> str       the standalone 1600x900 SVG
-    python3 card_majorana.py [out_dir]   (default: ../assets/v11)
+    python3 card_majorana.py [out_dir]   (default: ../assets/v12)
 
 A glowing germanium-crystal string in a frosted cryostat (left), a big curved holographic panel
 with a faint stack of lavender waveforms and one bold waveform whose sharp rise is picked out in
@@ -762,6 +762,6 @@ def build(out_dir):
 
 
 if __name__ == "__main__":
-    out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(HERE), "assets", "v11")
+    out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(HERE), "assets", "v12")
     p = build(out)
     print(p, os.path.getsize(p) // 1024, "KB")

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Build every v11 README asset into ../assets/v11.
+"""Build every v12 README asset into ../assets/v12.
 
-Usage: python3 make_v11/build.py [out_dir]
+Usage: python3 make_v12/build.py [out_dir]
 (art/*.webp comes from prep_art.py; build.py needs only the stdlib.)
 """
 import importlib
@@ -15,8 +15,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-OUT_DEFAULT = os.path.join(os.path.dirname(HERE), "assets", "v11")
-MODULES = ["header", "card_siderius", "card_planner", "card_majorana", "card_nwa", "footer"]
+OUT_DEFAULT = os.path.join(os.path.dirname(HERE), "assets", "v12")
+MODULES = ["header", "sheet", "footer"]   # sheet.py writes the link strips, titles, tiles (cards inset) and toolbox
 
 
 def main(out_dir=OUT_DEFAULT):
