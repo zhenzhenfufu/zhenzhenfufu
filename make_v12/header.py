@@ -567,6 +567,9 @@ def svg():
         f'<g clip-path="url(#{U}-wat)">{wb}{reflections()}</g>',
         f'<rect width="{W}" height="{H}" fill="url(#{U}-veil)"/>',
         cast(),
+        # cream text panel so the intro reads apart from the scene (same TEXT_BG as the README sheet panels)
+        f'<rect x="40" y="66" width="1010" height="430" rx="30" fill="#fffaf3" fill-opacity=".86" '
+        f'stroke="#ffffff" stroke-opacity=".9" stroke-width="2"/>',
         text_block(),
     ]
     doc = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" '

@@ -317,7 +317,9 @@ CREDIT = ("Chibi characters: official Genshin Impact \u201cPaimon\u2019s Paintin
 
 
 def credit():
-    o = []
+    # cream pill behind the two credit lines (same TEXT_BG as the README sheet panels)
+    o = [f'<rect x="{W // 2 - 420}" y="{H - 72}" width="840" height="66" rx="22" fill="#fffaf3" fill-opacity=".9" '
+         f'stroke="#efe2d6" stroke-width="1.5"/>']
     for line, y in zip(CREDIT, (H - 44, H - 16)):
         a = (f'x="{W // 2}" y="{y}" text-anchor="middle" font-family="{FONT}" font-size="21" font-weight="600" '
              f'letter-spacing=".2"')

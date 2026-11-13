@@ -5,6 +5,7 @@ gaps, each section in its own pale tint (BG_* below) (README.md places them as <
 whitespace between them).  This module writes:
 
     links-{website,linkedin,email,demo}.svg                  one 1600x124 strip cut in four link buttons
+    about.svg                                                 "Now / Before" paragraphs on a cream text panel
     title-work.svg                                            "Selected work" section strip
     tile-siderius.svg, tile-planner.svg,                      800x600 tiles: the card scene inset with its
     tile-majorana.svg, tile-nwa.svg                           caption underneath (two tiles per row)
@@ -35,7 +36,9 @@ BG_LINKS = "#fcf0f6"     # pale sakura
 BG_WORK = PAPER          # pale lavender
 BG_TOOL = "#edf0fd"      # pale periwinkle
 BG_SNAKE = "#fdf2ec"     # pale peach (the snake workflow paints the same colour behind snake-sheet.svg)
-PAPER_HI = "#faf7ff"     # button / chip fill
+PAPER_HI = "#faf7ff"     # chip fill (chips sit on a cream text panel)
+TEXT_BG = "#fffaf3"      # warm cream: every block of text sits on this, so text reads apart from the scenes
+TEXT_EDGE = "#efe2d6"    # hairline round the cream panels
 LINE = "#d8cdf6"         # hairlines and button borders
 INK = "#2b2768"          # titles (header name colour)
 INK_V = "#3b3579"        # body text
@@ -111,9 +114,13 @@ def title_body(text, h=120, sub=None):
             f'<text x="{x0 + 44}" y="{y}" font-family="{FONT}" font-size="46" font-weight="800" fill="{INK}" '
             f'letter-spacing="-.4">{esc(text)}</text>']
     tw = text_w(text, 46, .6)
-    body.append(f'<path d="M{x0 + 44} {y + 14} h{tw:.0f}" stroke="{SAK}" stroke-width="5" stroke-linecap="round" opacity=".8"/>')
+    head_w = max(tw, chip_w(text, 46) * 1.08)
+    pw = 44 + head_w + 34 + (chip_w(sub, 26) * 1.08 + 26 if sub else 0)
+    body.insert(0, f'<rect x="{x0 - 16}" y="{y - 52}" width="{pw + 16:.0f}" height="78" rx="39" fill="{TEXT_BG}" '
+                   f'stroke="{TEXT_EDGE}" stroke-width="2"/>')
+    body.append(f'<path d="M{x0 + 44} {y + 12} h{tw:.0f}" stroke="{SAK}" stroke-width="5" stroke-linecap="round" opacity=".8"/>')
     if sub:
-        body.append(f'<text x="{x0 + 44 + tw + 26:.0f}" y="{y}" font-family="{FONT}" font-size="26" font-weight="500" '
+        body.append(f'<text x="{x0 + 44 + head_w + 26:.0f}" y="{y}" font-family="{FONT}" font-size="26" font-weight="500" '
                     f'fill="{MUTE}">{esc(sub)}</text>')
     body += [spark(W - 120, 40, 9, "#ffffff"), spark(W - 92, 70, 5, GOLD), spark(W - 160, 76, 4, "#ffffff")]
     return "".join(body)
@@ -158,7 +165,7 @@ def link_strip(i, h=124):
     assert 0 <= bx and bx + PILL_W <= LW, (kind, bx)
     tx = bx + 70
     body = (f'<rect x="{bx:.1f}" y="{by + 4:.1f}" width="{PILL_W}" height="{PILL_H}" rx="{PILL_H / 2}" fill="{LINE}" opacity=".7"/>'
-            f'<rect x="{bx:.1f}" y="{by:.1f}" width="{PILL_W}" height="{PILL_H}" rx="{PILL_H / 2}" fill="{PAPER_HI}" stroke="{LINE}" stroke-width="2"/>'
+            f'<rect x="{bx:.1f}" y="{by:.1f}" width="{PILL_W}" height="{PILL_H}" rx="{PILL_H / 2}" fill="{TEXT_BG}" stroke="{TEXT_EDGE}" stroke-width="2"/>'
             + icon(kind, bx + 42, by + PILL_H / 2)
             + f'<text x="{tx:.1f}" y="{by + PILL_H / 2 + 11:.1f}" font-family="{FONT}" font-size="28" font-weight="800" fill="{INK}">{esc(label)}</text>')
     assert 70 + chip_w(label, 28) < PILL_W - 16, (label, chip_w(label, 28))
@@ -190,23 +197,32 @@ def inset(card_svg, x, y, w, h):
     return f'<svg x="{x}" y="{y}" width="{w}" height="{h}" viewBox="{vb}">' + card_svg[m.end():]
 
 
+CAP_H = 152                      # cream caption band under each scene
+
+
 def tile(key, build, side, title, l1, l2):
     ax = OUT_M if side == "L" else GUT
     aw = TW - OUT_M - GUT
     ah = round(aw * 9 / 16, 2)
-    # soft drop shadow: a blurred rounded rect in the shadow colour
-    shadow = (f'<rect x="{ax}" y="{ART_Y + 8}" width="{aw}" height="{ah}" rx="22" fill="#5d4fb0" opacity=".16" '
+    ch = ah + CAP_H
+    defs = (f'<filter id="t{key}-bl" x="-10%" y="-10%" width="120%" height="140%"><feGaussianBlur stdDeviation="10"/></filter>'
+            f'<clipPath id="t{key}-cc"><rect x="{ax}" y="{ART_Y}" width="{aw}" height="{ch:.2f}" rx="22"/></clipPath>')
+    # one rounded card: soft shadow, cream body, scene on top, caption on the cream
+    shadow = (f'<rect x="{ax}" y="{ART_Y + 8}" width="{aw}" height="{ch:.2f}" rx="22" fill="#5d4fb0" opacity=".14" '
               f'filter="url(#t{key}-bl)"/>')
-    defs = f'<filter id="t{key}-bl" x="-10%" y="-10%" width="120%" height="140%"><feGaussianBlur stdDeviation="10"/></filter>'
-    art = inset(build(), ax, ART_Y, aw, ah)
-    ty = ART_Y + ah + 60
-    body = [shadow, art,
-            f'<text x="{ax + 6}" y="{ty:.1f}" font-family="{FONT}" font-size="38" font-weight="800" fill="{INK}" '
-            f'letter-spacing="-.2">{esc(title)}<tspan dx="12" font-size="28" fill="{PINK}">↗</tspan></text>',
-            f'<text x="{ax + 6}" y="{ty + 46:.1f}" font-family="{FONT}" font-size="28" font-weight="600" fill="{INK_V}">{esc(l1)}</text>',
-            f'<text x="{ax + 6}" y="{ty + 86:.1f}" font-family="{FONT}" font-size="24" font-weight="500" fill="{MUTE}">{esc(l2)}</text>']
-    for s, fs in ((title, 38), (l1, 28), (l2, 24)):
-        assert chip_w(s, fs) < aw - 30, (key, s, round(chip_w(s, fs)))
+    card = f'<rect x="{ax}" y="{ART_Y}" width="{aw}" height="{ch:.2f}" rx="22" fill="{TEXT_BG}"/>'
+    art = f'<g clip-path="url(#t{key}-cc)">' + inset(build(), ax, ART_Y, aw, ah) + "</g>"
+    edge = (f'<rect x="{ax}" y="{ART_Y}" width="{aw}" height="{ch:.2f}" rx="22" fill="none" stroke="{TEXT_EDGE}" '
+            f'stroke-width="2"/>')
+    tx, ty = ax + 26, ART_Y + ah + 50
+    body = [shadow, card, art, edge,
+            f'<text x="{tx}" y="{ty:.1f}" font-family="{FONT}" font-size="36" font-weight="800" fill="{INK}" '
+            f'letter-spacing="-.2">{esc(title)}<tspan dx="12" font-size="27" fill="{PINK}">\u2197</tspan></text>',
+            f'<text x="{tx}" y="{ty + 44:.1f}" font-family="{FONT}" font-size="27" font-weight="600" fill="{INK_V}">{esc(l1)}</text>',
+            f'<text x="{tx}" y="{ty + 82:.1f}" font-family="{FONT}" font-size="23" font-weight="500" fill="{MUTE}">{esc(l2)}</text>']
+    for s, fs in ((title, 36), (l1, 27), (l2, 23)):
+        assert chip_w(s, fs) < aw - 2 * 26 - 8, (key, s, round(chip_w(s, fs)))
+    assert ART_Y + ch + 24 <= TH
     return doc(TW, TH, f"{title}: {l1}. {l2}.", "".join(body), defs)
 
 
@@ -219,10 +235,11 @@ TOOLBOX = [
 
 
 def toolbox():
-    h = 350
+    h = 376
     x0 = 72
-    body = [title_body("Toolbox")]
-    y = 128
+    body = [title_body("Toolbox"),
+            f'<rect x="64" y="122" width="{W - 128}" height="{3 * 70 + 18}" rx="26" fill="{TEXT_BG}" stroke="{TEXT_EDGE}" stroke-width="2"/>']
+    y = 134
     for gi, (group, items) in enumerate(TOOLBOX):
         body.append(f'<text x="{x0 + 44}" y="{y + 36}" font-family="{FONT}" font-size="24" font-weight="700" '
                     f'fill="{PINK}" letter-spacing="1.5">{esc(group.upper())}</text>')
@@ -238,12 +255,57 @@ def toolbox():
     return doc(W, h, "Toolbox. " + ". ".join(f"{g}: {', '.join(i)}" for g, i in TOOLBOX) + ".", "".join(body), bg=BG_TOOL)
 
 
+# ------------------------------------------------------------------ about (Now / Before)
+ABOUT = [
+    ("Now", "In Prof. Aobo Li\u2019s Rare AI Lab at UC San Diego I work on SIDERIUS, an open-source agent that turns "
+            "a dataset and a research question into an iterative machine-learning experiment and checks validity "
+            "beside the score. I test its orchestration mode and run it end to end on Project 8 physics data. "
+            "If you have a dataset and a question, try it and open an issue."),
+    ("Before", "AI Agent Development Intern at Pfizer China R&D (summer 2026): a regulatory-filing system where "
+               "deterministic code decides and review agents only advise."),
+]
+ABOUT_FS, ABOUT_LH, ABOUT_WRAP = 27, 42, 1150     # wrap width is conservative: the estimate is about +-10%
+
+
+def wrap(text, fs, width):
+    lines, cur = [], ""
+    for word in text.split(" "):
+        nxt = (cur + " " + word).strip()
+        if cur and chip_w(nxt, fs) > width:
+            lines.append(cur)
+            cur = word
+        else:
+            cur = nxt
+    return lines + [cur]
+
+
+def about():
+    x0, lab_x, txt_x = 64, 112, 262
+    blocks = [(lab, wrap(t, ABOUT_FS, ABOUT_WRAP)) for lab, t in ABOUT]
+    y = 34 + 48
+    body = []
+    for lab, lines in blocks:
+        body.append(f'<text x="{lab_x}" y="{y}" font-family="{FONT}" font-size="25" font-weight="800" fill="{PINK}" '
+                    f'letter-spacing="1.5">{esc(lab.upper())}</text>')
+        for k, ln in enumerate(lines):
+            body.append(f'<text x="{txt_x}" y="{y + k * ABOUT_LH}" font-family="{FONT}" font-size="{ABOUT_FS}" '
+                        f'font-weight="500" fill="{INK_V}">{esc(ln)}</text>')
+        y += len(lines) * ABOUT_LH + 26
+    ph = y - 26 - ABOUT_LH + 34 + 18          # panel bottom: last baseline + descent + padding
+    h = 34 + ph + 34 - 8
+    panel = (f'<rect x="{x0}" y="10" width="{W - 2 * x0}" height="{ph:.0f}" rx="26" fill="{TEXT_BG}" '
+             f'stroke="{TEXT_EDGE}" stroke-width="2"/>')
+    label = " ".join(f"{lab}: {t}" for lab, t in ABOUT)
+    return doc(W, round(h), label, panel + "".join(body), bg=BG_LINKS)
+
+
 # ------------------------------------------------------------------ build
 def build(out_dir=OUT_DEFAULT):
     os.makedirs(out_dir, exist_ok=True)
     files = {}
     for i, (kind, _) in enumerate(LINKS):
         files[f"links-{kind}.svg"] = link_strip(i)
+    files["about.svg"] = about()
     files["title-work.svg"] = title_strip("Selected work")
     for t in TILES:
         files[f"tile-{t[0]}.svg"] = tile(*t)
