@@ -261,7 +261,7 @@ ABOUT = [
             "a dataset and a research question into an iterative machine-learning experiment and checks validity "
             "beside the score. I test its orchestration mode and run it end to end on Project 8 physics data. "
             "If you have a dataset and a question, try it and open an issue."),
-    ("Before", "AI Agent Development Intern at Pfizer China R&D (summer 2026): a regulatory-filing system where "
+    ("Before", "AI Agent Development Intern at Pfizer R&D (summer 2026): a regulatory-filing system where "
                "deterministic code decides and review agents only advise."),
 ]
 ABOUT_FS, ABOUT_LH, ABOUT_WRAP = 27, 42, 1150     # wrap width is conservative: the estimate is about +-10%

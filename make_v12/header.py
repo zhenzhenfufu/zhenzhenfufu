@@ -54,12 +54,12 @@ Y_CAPS, Y_NAME, Y_TAG = 118, 210, 270
 ROW_LINES = None         # filled below from TEXT
 
 TEXT = {
-    "caps": "DATA SCIENCE · UC SAN DIEGO · CLASS OF 2029",
+    "caps": "DATA SCIENCE · UC SAN DIEGO · CLASS OF 2028",
     "name": "Zhen Wang",
     "cn": "王臻",
     "tag": "I build AI agents — and the checks that keep them honest.",
     "rows": [("Now", ("Rare AI Lab (Prof. Aobo Li)", "SIDERIUS, an open-source auto-ML agent for science")),
-             ("Before", "AI Agent Development Intern · Pfizer China R&D (2026)"),
+             ("Before", "AI Agent Development Intern · Pfizer R&D (2026)"),
              ("Also", "I make games · Night Water Academy 夜水书院 (UE5)")],
 }
 ROW_LINES = [("Now", TEXT["rows"][0][1][0], 340), ("", TEXT["rows"][0][1][1], 378),
@@ -554,10 +554,10 @@ def svg():
     cd, cb = clouds()
     sky_art = f'<g id="{U}-hills">{far_hills()}</g>{cb}'
     wd, wb = water([f"{U}-hills", f"{U}-cl"])
-    title = "Zhen Wang 王臻 — Data Science · UC San Diego · Class of 2029"
+    title = "Zhen Wang 王臻 — Data Science · UC San Diego · Class of 2028"
     desc = ("I build AI agents — and the checks that keep them honest. "
             "Now: Rare AI Lab (Prof. Aobo Li) · SIDERIUS, an open-source auto-ML agent for science. "
-            "Before: AI Agent Development Intern · Pfizer China R&D (2026). "
+            "Before: AI Agent Development Intern · Pfizer R&D (2026). "
             "Also: I make games · Night Water Academy 夜水书院 (UE5). "
             "Illustration: chibi Furina (an official Genshin Impact emoji, © HoYoverse) rising out of calm dusk water under cel-shaded clouds.")
     body = [
