@@ -54,7 +54,7 @@ Y_CAPS, Y_NAME, Y_TAG = 118, 210, 270
 ROW_LINES = None         # filled below from TEXT
 
 TEXT = {
-    "caps": "DATA SCIENCE · UC SAN DIEGO · CLASS OF 2028",
+    "caps": "DATA SCIENCE · UC SAN DIEGO · CLASS OF 2029 · GRADUATING 2028",
     "name": "Zhen Wang",
     "cn": "王臻",
     "tag": "I build AI agents — and the checks that keep them honest.",
@@ -554,7 +554,7 @@ def svg():
     cd, cb = clouds()
     sky_art = f'<g id="{U}-hills">{far_hills()}</g>{cb}'
     wd, wb = water([f"{U}-hills", f"{U}-cl"])
-    title = "Zhen Wang 王臻 — Data Science · UC San Diego · Class of 2028"
+    title = "Zhen Wang 王臻 — Data Science · UC San Diego · Class of 2029, expected to graduate in 2028"
     desc = ("I build AI agents — and the checks that keep them honest. "
             "Now: Rare AI Lab (Prof. Aobo Li) · SIDERIUS, an open-source auto-ML agent for science. "
             "Before: AI Agent Development Intern · Pfizer R&D (2026). "
